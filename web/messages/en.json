@@ -1,0 +1,68 @@
+{
+  "meta": {
+    "title": "Pushkin Son — boutique apartments in Saint Petersburg",
+    "description": "Quiet premium stays in four central locations. Request-to-book flow."
+  },
+  "Nav": {
+    "brandName": "Pushkin Son",
+    "brandWordTop": "Pushkin",
+    "brandWordBottom": "SON",
+    "logoAlt": "Pushkin Son — silhouette",
+    "home": "Home",
+    "apartments": "Apartments",
+    "addresses": "Locations",
+    "contacts": "Contact",
+    "rules": "House rules",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "admin": "Sign in"
+  },
+  "Home": {
+    "heroTitle": "Pushkin Son",
+    "heroSubtitle": "Apartments in the heart of St. Petersburg",
+    "heroLead": "Four locations, nineteen spaces for travel or business.",
+    "groupsTitle": "Locations",
+    "featuredTitle": "Featured",
+    "ctaTitle": "Pick dates & apartment",
+    "ctaBody": "Booking is a request: we confirm availability and details by phone or email.",
+    "bookingNote": "Online payments come later — the database is already prepared."
+  },
+  "Apartments": {
+    "title": "Catalogue",
+    "from": "from",
+    "perNight": "RUB / night",
+    "details": "Details",
+    "rooms": "Rooms",
+    "guests": "Guests",
+    "district": "District",
+    "group": "Address / group"
+  },
+  "Property": {
+    "book": "Request booking",
+    "code": "Property code",
+    "avito": "Avito listing",
+    "calSyncNote": "Avito calendar sync is not enabled yet. The property model already reserves fields for an iCal URL and last import time—we will wire this up when you are ready."
+  },
+  "Addresses": {
+    "title": "Locations",
+    "subtitle": "All homes are grouped by address"
+  },
+  "Contacts": {
+    "title": "Contact",
+    "body": "For bookings and partnerships — email or messenger (add your contacts here)."
+  },
+  "Legal": {
+    "privacyTitle": "Privacy policy",
+    "privacyBody": "We process personal data (name, contacts, stay dates) only to handle requests and perform the contract. Cookies may be used for core site features and analytics when enabled. You may request deletion or a copy of your data — add a contact channel here. Access to admin areas is role-based; passwords are stored hashed; use HTTPS in production.",
+    "termsTitle": "Terms of use",
+    "termsBody": "By using the site you agree to data processing and booking rules. Replace this draft with a lawyer-reviewed offer before accepting online payments.",
+    "rulesTitle": "House rules",
+    "rulesBody": "Check-in from 14:00, check-out by 11:00 unless agreed otherwise. No smoking. Quiet hours — respect neighbours. Deposit and pet fees follow each listing."
+  },
+  "Footer": {
+    "rights": "© Pushkin Son, Saint Petersburg"
+  },
+  "Naming": {
+    "hint": "Internal codes (e.g. NKR-01) help staff; guests see a descriptive title and group address."
+  }
+}

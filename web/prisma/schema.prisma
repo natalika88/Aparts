@@ -1,0 +1,206 @@
+// Пушкин сон — апартаменты СПб. SQLite локально; для прод — PostgreSQL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  /// SUPERADMIN | PRICE_ADMIN | CONTENT_ADMIN
+  role         String   @default("CONTENT_ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  auditLogs    AuditLog[]
+}
+
+model PropertyGroup {
+  id                 String     @id @default(cuid())
+  slug               String     @unique
+  name               String
+  nameEn             String?
+  district           String
+  fullAddress        String
+  shortDescription   String
+  shortDescriptionEn String?
+  fullDescription    String?
+  fullDescriptionEn  String?
+  coverImagePath     String?
+  sortOrder          Int        @default(0)
+  isActive           Boolean    @default(true)
+  metaTitle          String?
+  metaDescription    String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  properties         Property[]
+}
+
+model Property {
+  id                   String   @id @default(cuid())
+  groupId              String
+  group                PropertyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  slug                 String   @unique
+  internalCode         String   @unique
+  publicName           String
+  publicNameEn         String?
+  district             String
+  fullAddress          String
+  avitoListingUrl      String?
+  /// Зарезервировано: URL экспорта iCal с Авито — когда включим синхронизацию, сюда подставят ссылку «Ваш календарь на Авито».
+  avitoIcalImportUrl   String?
+  /// Зарезервировано: время последнего успешного импорта iCal (после реализации синхронизации).
+  icalLastImportedAt   DateTime?
+  floor                String?
+  roomsCount           Int
+  /// STUDIO | ONE_ROOM | TWO_ROOM | THREE_ROOM
+  propertyType         String
+  areaSqm              Float
+  guestsMax            Int
+  sleepingPlaces       String?
+  shortDescription     String
+  shortDescriptionEn   String?
+  fullDescription      String
+  fullDescriptionEn    String?
+  advantages           String?
+  rules                String?
+  checkInTime          String   @default("14:00")
+  checkOutTime         String   @default("11:00")
+  basePricePerNight    Int?
+  weekendPrice         Int?
+  minStayDefault       Int      @default(1)
+  sortOrder            Int      @default(0)
+  isFeatured           Boolean  @default(false)
+  /// DRAFT | PUBLISHED | HIDDEN
+  status               String   @default("DRAFT")
+  metaTitle            String?
+  metaDescription      String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  amenities      PropertyAmenity[]
+  media            PropertyMedia[]
+  prices           PropertyPrice[]
+  availability     PropertyAvailability[]
+  bookings         Booking[]
+}
+
+model Amenity {
+  id         String            @id @default(cuid())
+  name       String
+  nameEn     String?
+  icon       String?
+  sortOrder  Int               @default(0)
+  isActive   Boolean           @default(true)
+  properties PropertyAmenity[]
+}
+
+model PropertyAmenity {
+  propertyId String
+  amenityId  String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  amenity    Amenity  @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([propertyId, amenityId])
+}
+
+model PropertyMedia {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  mediaType   String
+  filePath    String?
+  externalUrl String?
+  previewPath String?
+  title       String?
+  altText     String?
+  sortOrder   Int      @default(0)
+  isCover     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model PropertyPrice {
+  id             String   @id @default(cuid())
+  propertyId     String
+  property       Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  dateStart      DateTime
+  dateEnd        DateTime
+  pricePerNight  Int
+  weekendPrice   Int?
+  specialPrice   Int?
+  minStay        Int?
+  comment        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model PropertyAvailability {
+  id         String   @id @default(cuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  dateStart  DateTime
+  dateEnd    DateTime
+  /// AVAILABLE | BOOKED | BLOCKED | UNAVAILABLE
+  status     String
+  comment    String?
+  /// MANUAL | BOOKING | SYSTEM | ICAL_IMPORT
+  source     String   @default("MANUAL")
+  bookingId  String?
+  booking    Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Booking {
+  id             String   @id @default(cuid())
+  propertyId     String
+  property       Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  dateCheckIn    DateTime
+  dateCheckOut   DateTime
+  nightsCount    Int
+  adultsCount    Int      @default(1)
+  childrenCount  Int      @default(0)
+  guestsCount    Int
+  guestName      String
+  guestPhone     String
+  guestEmail     String
+  guestMessenger String?
+  comment        String?
+  totalPrice     Int
+  currency       String   @default("RUB")
+  /// PENDING | CONFIRMED | CANCELLED | REJECTED | COMPLETED
+  status         String   @default("PENDING")
+  /// UNPAID | PENDING | PAID | FAILED | REFUNDED | NOT_REQUIRED
+  paymentStatus  String   @default("NOT_REQUIRED")
+  source         String   @default("website")
+  adminComment   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  availability PropertyAvailability[]
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  entityType String
+  entityId   String
+  action     String
+  beforeJson String?
+  afterJson  String?
+  createdAt  DateTime @default(now())
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
