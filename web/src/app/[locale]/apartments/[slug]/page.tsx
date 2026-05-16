@@ -5,6 +5,8 @@ import { getPropertyBlockedDays } from "@/lib/property-blocked-days";
 import { prisma } from "@/lib/prisma";
 import { BookingForm } from "./BookingForm";
 import { PropertyCoverImage, PropertyPhotoGallery } from "@/components/PropertyImages";
+import { PropertyDetails } from "@/components/property/PropertyDetails";
+import { PropertySummaryCard } from "@/components/property/PropertySummaryCard";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
@@ -13,6 +15,7 @@ export default async function ApartmentPage({ params }: Props) {
   const loc = locale === "en" ? "en" : "ru";
   const t = await getTranslations("Property");
   const apt = await getTranslations("Apartments");
+  const nav = await getTranslations("Nav");
 
   const property = await prisma.property.findFirst({
     where: { slug, status: "PUBLISHED" },
@@ -21,6 +24,10 @@ export default async function ApartmentPage({ params }: Props) {
       media: {
         where: { mediaType: "image" },
         orderBy: { sortOrder: "asc" },
+      },
+      amenities: {
+        include: { amenity: true },
+        orderBy: { amenity: { sortOrder: "asc" } },
       },
     },
   });
@@ -45,10 +52,13 @@ export default async function ApartmentPage({ params }: Props) {
     .filter((m) => m.filePath)
     .map((m) => ({ id: m.id, src: m.filePath!, alt: m.altText }));
 
+  const propertyTitle =
+    loc === "en" && property.publicNameEn ? property.publicNameEn : property.publicName;
+
   const formLabels = {
     submit: t("book"),
-    checkIn: loc === "ru" ? "Заезд" : "Check-in",
-    checkOut: loc === "ru" ? "Выезд" : "Check-out",
+    checkIn: t("checkIn"),
+    checkOut: t("checkOut"),
     guests: apt("guests"),
     name: loc === "ru" ? "Имя" : "Name",
     phone: loc === "ru" ? "Телефон" : "Phone",
@@ -75,70 +85,173 @@ export default async function ApartmentPage({ params }: Props) {
     },
   };
 
+  const detailLabels = {
+    factsTitle: t("factsTitle"),
+    aboutTitle: t("aboutTitle"),
+    amenitiesTitle: t("amenitiesTitle"),
+    rulesTitle: t("rulesTitle"),
+    area: t("area"),
+    layout: t("layout"),
+    guests: t("guests"),
+    floor: t("floor"),
+    beds: t("beds"),
+    checkIn: t("checkIn"),
+    checkOut: t("checkOut"),
+    address: t("address"),
+    location: t("location"),
+    sqm: t("sqm"),
+  };
+
+  const galleryLabels = {
+    openFullscreen: t("galleryOpen"),
+    close: t("galleryClose"),
+    prev: t("galleryPrev"),
+    next: t("galleryNext"),
+    counter: t("galleryCounter"),
+    showAll: t("galleryShowAll"),
+  };
+
+  const summaryLabels = {
+    guests: t("guests"),
+    area: t("area"),
+    sqm: t("sqm"),
+    layout: t("layout"),
+    beds: t("beds"),
+    checkIn: t("checkIn"),
+    checkOut: t("checkOut"),
+    minStay: t("minStay"),
+    nightsShort: t("nightsShort"),
+    code: t("code"),
+    avito: t("avito"),
+    perNight: apt("perNight"),
+  };
+
+  const propertyDetailsData = {
+    locale: loc,
+    groupSlug: property.group.slug,
+    groupName: property.group.name,
+    fullAddress: property.fullAddress,
+    internalCode: property.internalCode,
+    propertyType: property.propertyType,
+    roomsCount: property.roomsCount,
+    areaSqm: property.areaSqm,
+    guestsMax: property.guestsMax,
+    floor: property.floor,
+    sleepingPlaces: property.sleepingPlaces,
+    checkInTime: property.checkInTime,
+    checkOutTime: property.checkOutTime,
+    shortDescription: property.shortDescription,
+    shortDescriptionEn: property.shortDescriptionEn,
+    fullDescription: property.fullDescription,
+    fullDescriptionEn: property.fullDescriptionEn,
+    advantages: property.advantages,
+    rules: property.rules,
+    amenities: property.amenities.map((pa) => ({
+      name: pa.amenity.name,
+      nameEn: pa.amenity.nameEn,
+    })),
+  };
+
   return (
     <article className="space-y-10">
-      <PropertyPhotoGallery
-        items={galleryItems}
-        title={loc === "en" && property.publicNameEn ? property.publicNameEn : property.publicName}
-      />
+      <nav aria-label="Breadcrumb" className="text-sm text-[var(--muted)]">
+        <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+          <li>
+            <Link href="/" className="hover:text-[var(--text)]">
+              {nav("home")}
+            </Link>
+          </li>
+          <li aria-hidden>/</li>
+          <li>
+            <Link href="/apartments" className="hover:text-[var(--text)]">
+              {apt("title")}
+            </Link>
+          </li>
+          <li aria-hidden>/</li>
+          <li className="text-[var(--text)]" aria-current="page">
+            {propertyTitle}
+          </li>
+        </ol>
+      </nav>
 
-      <div>
-        <Link href="/apartments" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">
-          ← {apt("title")}
-        </Link>
-        <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl text-[var(--text)] md:text-4xl">
-          {loc === "en" && property.publicNameEn ? property.publicNameEn : property.publicName}
-        </h1>
-        <p className="mt-2 text-[var(--muted)]">{property.group.name}</p>
-        <p className="mt-1 text-sm">{property.fullAddress}</p>
-        {property.basePricePerNight ? (
-          <p className="mt-4 text-lg text-[var(--text)]">
-            {apt("from")} {property.basePricePerNight} {apt("perNight")}
-          </p>
-        ) : null}
-        {property.avitoListingUrl ? (
-          <p className="mt-4">
-            <a
-              href={property.avitoListingUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-medium text-[var(--accent)] underline-offset-4 hover:underline"
+      <section className="property-hero grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,22rem)] lg:items-stretch lg:gap-10 xl:grid-cols-[minmax(0,1.2fr)_24rem]">
+        <PropertyPhotoGallery
+          items={galleryItems}
+          title={propertyTitle}
+          labels={galleryLabels}
+          layout="preview"
+        />
+
+        <PropertySummaryCard
+          data={{
+            locale: loc,
+            title: propertyTitle,
+            groupSlug: property.group.slug,
+            groupName: property.group.name,
+            propertyType: property.propertyType,
+            roomsCount: property.roomsCount,
+            areaSqm: property.areaSqm,
+            guestsMax: property.guestsMax,
+            sleepingPlaces: property.sleepingPlaces,
+            checkInTime: property.checkInTime,
+            checkOutTime: property.checkOutTime,
+            minStay: property.minStayDefault,
+            internalCode: property.internalCode,
+            avitoUrl: property.avitoListingUrl,
+          }}
+          labels={summaryLabels}
+          pricePerNight={property.basePricePerNight}
+        />
+      </section>
+
+      <section
+        className="grid gap-10 border-t border-[var(--border)] pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:items-start lg:gap-12 xl:grid-cols-[minmax(0,1fr)_24rem]"
+        aria-labelledby="property-details-heading"
+      >
+        <div className="min-w-0 space-y-10">
+          <h2 id="property-details-heading" className="sr-only">
+            {detailLabels.aboutTitle}
+          </h2>
+          <PropertyDetails data={propertyDetailsData} labels={detailLabels} presentation="about" />
+
+          <section
+            id="booking"
+            className="property-booking-card scroll-mt-28 w-full max-w-[22rem] rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_30px_-14px_rgba(47,45,43,0.12)] sm:p-6"
+            aria-labelledby="property-booking-heading"
+          >
+            <h2
+              id="property-booking-heading"
+              className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]"
             >
-              {t("avito")} ↗
-            </a>
-          </p>
-        ) : null}
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--muted)]">{t("calSyncNote")}</p>
-      </div>
+              {t("book")}
+            </h2>
+            {property.basePricePerNight ? (
+              <p className="mt-2 text-sm text-[var(--muted)]">
+                <span className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]">
+                  {property.basePricePerNight}
+                </span>{" "}
+                {apt("perNight")}
+              </p>
+            ) : null}
+            <BookingForm
+              slug={slug}
+              locale={loc}
+              minStay={property.minStayDefault}
+              blockedDays={blockedDays}
+              labels={formLabels}
+              embedded
+            />
+            <p className="mt-4 text-xs leading-relaxed text-[var(--muted)]">{t("calSyncNote")}</p>
+          </section>
+        </div>
 
-      <section className="space-y-10">
-        <div className="space-y-4 text-[var(--text)]">
-          <h2 className="font-[family-name:var(--font-display)] text-xl">{loc === "en" ? "About" : "О жилье"}</h2>
-          <p className="leading-relaxed text-[var(--muted)]">
-            {loc === "en" && property.fullDescriptionEn ? property.fullDescriptionEn : property.fullDescription}
-          </p>
-          <p className="text-sm text-[var(--muted)]">
-            {loc === "ru" ? "Заезд" : "Check-in"}: {property.checkInTime} · {loc === "ru" ? "Выезд" : "Check-out"}:{" "}
-            {property.checkOutTime}
-          </p>
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)]/40 p-4 text-sm text-[var(--muted)]">
-            {property.rules}
-          </div>
-        </div>
-        <div id="booking" className="scroll-mt-28 w-full max-w-md">
-          <h2 className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]">{t("book")}</h2>
-          <BookingForm
-            slug={slug}
-            locale={loc}
-            minStay={property.minStayDefault}
-            blockedDays={blockedDays}
-            labels={formLabels}
-          />
-        </div>
+        <aside className="lg:sticky lg:top-28 lg:self-start">
+          <PropertyDetails data={propertyDetailsData} labels={detailLabels} presentation="sidebar" />
+        </aside>
       </section>
 
       {related.length > 0 ? (
-        <section>
+        <section className="border-t border-[var(--border)] pt-10">
           <h2 className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]">
             {loc === "ru" ? "В этой локации" : "Same location"}
           </h2>

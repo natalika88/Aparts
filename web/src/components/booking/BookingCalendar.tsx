@@ -23,6 +23,7 @@ type BookingCalendarProps = {
   locale: "ru" | "en";
   minStay: number;
   blockedDays: string[];
+  compact?: boolean;
   onRangeChange?: (checkIn: string | null, checkOut: string | null) => void;
   labels: {
     checkIn: string;
@@ -48,6 +49,7 @@ export function BookingCalendar({
   locale,
   minStay,
   blockedDays,
+  compact = false,
   onRangeChange,
   labels,
 }: BookingCalendarProps) {
@@ -132,7 +134,7 @@ export function BookingCalendar({
       : `${format(checkIn, "d MMM", { locale: dateLocale })} → ${format(checkOut, "d MMM yyyy", { locale: dateLocale })} · ${nights} ${labels.nights}`;
 
   return (
-    <div className="space-y-3">
+    <div className={`booking-calendar space-y-3${compact ? " booking-calendar--compact" : ""}`}>
       <input type="hidden" name="checkIn" value={checkIn ? toKey(checkIn) : ""} />
       <input type="hidden" name="checkOut" value={checkOut ? toKey(checkOut) : ""} />
 
@@ -145,7 +147,9 @@ export function BookingCalendar({
         >
           ←
         </button>
-        <p className="font-[family-name:var(--font-display)] text-base capitalize text-[var(--text)]">
+        <p
+          className={`font-[family-name:var(--font-display)] capitalize text-[var(--text)] ${compact ? "text-sm" : "text-base"}`}
+        >
           {format(viewMonth, "LLLL yyyy", { locale: dateLocale })}
         </p>
         <button
@@ -182,7 +186,9 @@ export function BookingCalendar({
               disabled={!inMonth || disabled}
               onClick={() => handleDayClick(d)}
               className={[
-                "relative aspect-square rounded-lg text-sm transition duration-200",
+                compact
+                  ? "relative h-8 rounded-md text-xs transition duration-200"
+                  : "relative aspect-square rounded-lg text-sm transition duration-200",
                 !inMonth && "invisible pointer-events-none",
                 inMonth && disabled && "cursor-not-allowed text-[var(--muted)]/50 line-through decoration-[var(--muted)]/40",
                 inMonth && !disabled && "cursor-pointer text-[var(--text)] hover:bg-[var(--surface)]",

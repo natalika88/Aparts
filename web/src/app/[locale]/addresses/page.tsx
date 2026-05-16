@@ -5,7 +5,11 @@ import { YandexMapWithLabels } from "@/components/YandexMapWithLabels";
 import { prisma } from "@/lib/prisma";
 import { buildYandexMapWidgetUrl, groupToMapPoint } from "@/lib/yandex-map";
 
-export default async function AddressesPage() {
+type Props = { params: Promise<{ locale: string }> };
+
+export default async function AddressesPage({ params }: Props) {
+  const { locale } = await params;
+  const loc = locale === "en" ? "en" : "ru";
   const t = await getTranslations("Addresses");
   const groups = await prisma.propertyGroup.findMany({
     orderBy: { sortOrder: "asc" },
@@ -32,18 +36,24 @@ export default async function AddressesPage() {
       ) : null}
 
       <ul className="grid gap-4 md:grid-cols-2">
-        {groups.map((g, i) => (
-          <Reveal key={g.id} as="li" delay={i * 70}>
-            <Link
-              href={`/addresses/${g.slug}`}
-              className="card-premium block rounded-2xl border border-[var(--border)] bg-white/50 p-6 hover:border-[var(--accent-secondary)]"
-            >
-              <h2 className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]">{g.name}</h2>
-              <p className="mt-2 text-sm text-[var(--muted)]">{g.fullAddress}</p>
-              <p className="mt-4 text-xs text-[var(--muted)]">{g._count.properties} объектов</p>
-            </Link>
-          </Reveal>
-        ))}
+        {groups.map((g, i) => {
+          const description =
+            loc === "en" && g.shortDescriptionEn ? g.shortDescriptionEn : g.shortDescription;
+          return (
+            <Reveal key={g.id} as="li" delay={i * 70}>
+              <Link
+                href={`/addresses/${g.slug}`}
+                className="card-premium block rounded-2xl border border-[var(--border)] bg-white/50 p-6 hover:border-[var(--accent-secondary)]"
+              >
+                <h2 className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]">{g.name}</h2>
+                <p className="mt-2 text-sm text-[var(--muted)]">{description}</p>
+                <p className="mt-4 text-xs text-[var(--muted)]">
+                  {t("apartmentsCount", { count: g._count.properties })}
+                </p>
+              </Link>
+            </Reveal>
+          );
+        })}
       </ul>
     </div>
   );

@@ -13,7 +13,7 @@ function SubmitButton({ label, disabled }: { label: string; disabled?: boolean }
     <button
       type="submit"
       disabled={pending || disabled}
-      className="rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-medium text-[var(--background)] disabled:opacity-50"
+      className="w-full rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-medium text-[var(--background)] disabled:opacity-50"
     >
       {label}
     </button>
@@ -26,11 +26,13 @@ export function BookingForm({
   minStay,
   blockedDays,
   labels,
+  embedded = false,
 }: {
   slug: string;
   locale: "ru" | "en";
   minStay: number;
   blockedDays: string[];
+  embedded?: boolean;
   labels: {
     submit: string;
     checkIn: string;
@@ -59,7 +61,10 @@ export function BookingForm({
   const [datesReady, setDatesReady] = useState(false);
 
   return (
-    <form action={formAction} className="mt-4 w-full space-y-4 rounded-2xl border border-[var(--border)] bg-white/60 p-6">
+    <form
+      action={formAction}
+      className={`w-full space-y-3 ${embedded ? "mt-4" : "mt-4 rounded-2xl border border-[var(--border)] bg-white/60 p-6"}`}
+    >
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="slug" value={slug} />
 
@@ -67,6 +72,7 @@ export function BookingForm({
         locale={locale}
         minStay={minStay}
         blockedDays={blockedDays}
+        compact={embedded}
         labels={{
           checkIn: labels.checkIn,
           checkOut: labels.checkOut,

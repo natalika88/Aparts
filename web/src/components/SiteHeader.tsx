@@ -53,12 +53,6 @@ export async function SiteHeader({ locale }: { locale: string }) {
             <Link href="/contacts" className="nav-link">
               {t("contacts")}
             </Link>
-            <Link href="/rules" className="nav-link">
-              {t("rules")}
-            </Link>
-            <Link href="/privacy" className="nav-link">
-              {t("privacy")}
-            </Link>
           </div>
           <HeaderBookButton label={t("book")} />
           <LanguageSwitcher currentLocale={locale} />

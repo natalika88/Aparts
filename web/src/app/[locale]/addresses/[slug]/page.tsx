@@ -58,18 +58,6 @@ export default async function AddressGroupPage({ params }: Props) {
         </a>
       </Reveal>
 
-      {mapSrc ? (
-        <Reveal delay={80} className="space-y-3">
-          <h2 className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]">{addr("mapTitle")}</h2>
-          <YandexMapWithLabels
-            points={point ? [point] : []}
-            zoom={16}
-            fallbackSrc={mapSrc}
-            title={group.fullAddress}
-          />
-        </Reveal>
-      ) : null}
-
       <ul className="grid gap-4 md:grid-cols-2">
         {group.properties.map((p, i) => (
           <Reveal key={p.id} as="li" delay={i * 60}>
@@ -96,6 +84,18 @@ export default async function AddressGroupPage({ params }: Props) {
           </Reveal>
         ))}
       </ul>
+
+      {mapSrc ? (
+        <Reveal delay={80} className="space-y-3 border-t border-[var(--border)] pt-10">
+          <h2 className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]">{addr("mapTitle")}</h2>
+          <YandexMapWithLabels
+            points={point ? [point] : []}
+            zoom={16}
+            fallbackSrc={mapSrc}
+            title={group.fullAddress}
+          />
+        </Reveal>
+      ) : null}
     </div>
   );
 }

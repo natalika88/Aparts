@@ -110,7 +110,7 @@ export function YandexMapWithLabels({
                 balloonContentBody: caption,
               },
               {
-                preset: "islands#redDotIconWithCaption",
+                preset: "islands#darkGreenDotIconWithCaption",
                 iconCaptionMaxWidth: "220",
                 iconCaption: caption,
               },
@@ -141,7 +141,7 @@ export function YandexMapWithLabels({
       <div className={`relative ${className}`.trim()}>
         <YandexMapEmbed src={fallbackSrc} title={title} className="rounded-2xl" />
         {points.length > 0 ? (
-          <ul className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-3 sm:p-4">
+          <ul className="pointer-events-none absolute inset-x-0 bottom-0 z-[2] flex flex-col gap-1.5 p-3 sm:p-4">
             {points.map((p) => (
               <li
                 key={`${p.lat}-${p.lng}-${p.label}`}
@@ -158,9 +158,15 @@ export function YandexMapWithLabels({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]/30 shadow-sm ${className}`.trim()}
+      className={`map-tone overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]/30 shadow-sm ${className}`.trim()}
     >
-      <div ref={mapRef} className="h-[min(420px,55vh)] w-full" role="region" aria-label={title} />
+      <div
+        ref={mapRef}
+        className="map-tone__media relative z-0 h-[min(420px,55vh)] w-full"
+        role="region"
+        aria-label={title}
+      />
+      <span className="map-tone__wash" aria-hidden />
     </div>
   );
 }

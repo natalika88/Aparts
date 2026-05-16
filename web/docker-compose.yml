@@ -3,13 +3,13 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: twosteps
-      POSTGRES_PASSWORD: twosteps
-      POSTGRES_DB: twosteps
+      POSTGRES_USER: pushkinson
+      POSTGRES_PASSWORD: pushkinson
+      POSTGRES_DB: pushkinson
     ports:
       - "5433:5432"
     volumes:
-      - twosteps_pg:/var/lib/postgresql/data
+      - pushkinson_pg:/var/lib/postgresql/data
 
 volumes:
-  twosteps_pg:
+  pushkinson_pg:
