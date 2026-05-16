@@ -28,6 +28,10 @@ model PropertyGroup {
   nameEn             String?
   district           String
   fullAddress        String
+  /// Широта для Яндекс.Карт (WGS84)
+  latitude           Float?
+  /// Долгота для Яндекс.Карт (WGS84)
+  longitude          Float?
   shortDescription   String
   shortDescriptionEn String?
   fullDescription    String?

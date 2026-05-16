@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
+import { HeaderBookButton } from "@/components/HeaderBookButton";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SiteHeaderShell } from "@/components/SiteHeaderShell";
 import { getBrandLogoMarkUrl } from "@/lib/brand-logo";
 
 export async function SiteHeader({ locale }: { locale: string }) {
@@ -9,11 +11,11 @@ export async function SiteHeader({ locale }: { locale: string }) {
   const mark = getBrandLogoMarkUrl();
 
   return (
-    <header className="border-b border-[var(--border)] bg-[var(--surface)]/60 backdrop-blur">
+    <SiteHeaderShell>
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
         <Link
           href="/"
-          className="flex min-w-0 shrink-0 items-center gap-3 sm:gap-5 text-[var(--text)] transition hover:opacity-90"
+          className="flex min-w-0 shrink-0 items-center gap-3 sm:gap-5 text-[var(--text)] transition duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:opacity-90"
         >
           {mark ? (
             <span className="inline-flex shrink-0 items-center justify-center">
@@ -39,28 +41,29 @@ export async function SiteHeader({ locale }: { locale: string }) {
         </Link>
         <nav className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
           <div className="flex flex-wrap items-center justify-end gap-3 text-[13px] font-[family-name:var(--font-display)] tracking-wide text-[var(--muted)] sm:gap-4 sm:text-sm">
-            <Link href="/" className="hover:text-[var(--text)]">
+            <Link href="/" className="nav-link">
               {t("home")}
             </Link>
-            <Link href="/apartments" className="hover:text-[var(--text)]">
+            <Link href="/apartments" className="nav-link">
               {t("apartments")}
             </Link>
-            <Link href="/addresses" className="hover:text-[var(--text)]">
+            <Link href="/addresses" className="nav-link">
               {t("addresses")}
             </Link>
-            <Link href="/contacts" className="hover:text-[var(--text)]">
+            <Link href="/contacts" className="nav-link">
               {t("contacts")}
             </Link>
-            <Link href="/rules" className="hover:text-[var(--text)]">
+            <Link href="/rules" className="nav-link">
               {t("rules")}
             </Link>
-            <Link href="/privacy" className="hover:text-[var(--text)]">
+            <Link href="/privacy" className="nav-link">
               {t("privacy")}
             </Link>
           </div>
+          <HeaderBookButton label={t("book")} />
           <LanguageSwitcher currentLocale={locale} />
         </nav>
       </div>
-    </header>
+    </SiteHeaderShell>
   );
 }

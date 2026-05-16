@@ -2,6 +2,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { Cormorant_Garamond, Manrope, Playfair_Display } from "next/font/google";
 import { routing } from "@/i18n/routing";
+import { MainShell } from "@/components/MainShell";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -43,8 +44,9 @@ export default async function LocaleLayout({
         className={`${manrope.variable} ${playfair.variable} ${brandLockup.variable} flex min-h-screen flex-col font-[family-name:var(--font-manrope)]`}
         style={{ fontFamily: "var(--font-manrope), system-ui, sans-serif" }}
       >
+        <div className="ambient-bg" aria-hidden />
         <SiteHeader locale={locale} />
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">{children}</main>
+        <MainShell>{children}</MainShell>
         <SiteFooter />
       </div>
     </NextIntlClientProvider>

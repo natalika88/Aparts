@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
+import { getPropertyBlockedDays } from "@/lib/property-blocked-days";
 import { prisma } from "@/lib/prisma";
 import { BookingForm } from "./BookingForm";
 import { PropertyCoverImage, PropertyPhotoGallery } from "@/components/PropertyImages";
@@ -24,6 +25,8 @@ export default async function ApartmentPage({ params }: Props) {
     },
   });
   if (!property) notFound();
+
+  const blockedDays = await getPropertyBlockedDays(property.id);
 
   const related = await prisma.property.findMany({
     where: { groupId: property.groupId, status: "PUBLISHED", NOT: { id: property.id } },
@@ -51,6 +54,18 @@ export default async function ApartmentPage({ params }: Props) {
     phone: loc === "ru" ? "Телефон" : "Phone",
     email: "Email",
     comment: loc === "ru" ? "Комментарий" : "Comment",
+    calendar: {
+      nights: t("calendar.nights"),
+      selectCheckIn: t("calendar.selectCheckIn"),
+      selectCheckOut: t("calendar.selectCheckOut"),
+      unavailable: "",
+      legendAvailable: t("calendar.legendAvailable"),
+      legendBusy: t("calendar.legendBusy"),
+      legendSelected: t("calendar.legendSelected"),
+      prevMonth: t("calendar.prevMonth"),
+      nextMonth: t("calendar.nextMonth"),
+      minStayHint: t("calendar.minStayHint"),
+    },
     error: {
       validation: loc === "ru" ? "Проверьте поля формы" : "Please check the form",
       not_found: loc === "ru" ? "Объект не найден" : "Not found",
@@ -71,10 +86,7 @@ export default async function ApartmentPage({ params }: Props) {
         <Link href="/apartments" className="text-sm text-[var(--muted)] hover:text-[var(--text)]">
           ← {apt("title")}
         </Link>
-        <p className="mt-4 text-xs uppercase tracking-wide text-[var(--muted)]">
-          {t("code")}: {property.internalCode}
-        </p>
-        <h1 className="mt-2 font-[family-name:var(--font-display)] text-3xl text-[var(--text)] md:text-4xl">
+        <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl text-[var(--text)] md:text-4xl">
           {loc === "en" && property.publicNameEn ? property.publicNameEn : property.publicName}
         </h1>
         <p className="mt-2 text-[var(--muted)]">{property.group.name}</p>
@@ -99,7 +111,7 @@ export default async function ApartmentPage({ params }: Props) {
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-[var(--muted)]">{t("calSyncNote")}</p>
       </div>
 
-      <section className="grid gap-10 md:grid-cols-[1.1fr_0.9fr]">
+      <section className="space-y-10">
         <div className="space-y-4 text-[var(--text)]">
           <h2 className="font-[family-name:var(--font-display)] text-xl">{loc === "en" ? "About" : "О жилье"}</h2>
           <p className="leading-relaxed text-[var(--muted)]">
@@ -113,9 +125,15 @@ export default async function ApartmentPage({ params }: Props) {
             {property.rules}
           </div>
         </div>
-        <div>
+        <div id="booking" className="scroll-mt-28 w-full max-w-md">
           <h2 className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]">{t("book")}</h2>
-          <BookingForm slug={slug} locale={loc} minStay={property.minStayDefault} labels={formLabels} />
+          <BookingForm
+            slug={slug}
+            locale={loc}
+            minStay={property.minStayDefault}
+            blockedDays={blockedDays}
+            labels={formLabels}
+          />
         </div>
       </section>
 
@@ -137,7 +155,6 @@ export default async function ApartmentPage({ params }: Props) {
                     className="h-24 w-28 shrink-0"
                   />
                   <div className="min-w-0 p-3">
-                    <span className="text-xs text-[var(--muted)]">{p.internalCode}</span>
                     <p className="font-medium text-[var(--text)]">
                       {loc === "en" && p.publicNameEn ? p.publicNameEn : p.publicName}
                     </p>

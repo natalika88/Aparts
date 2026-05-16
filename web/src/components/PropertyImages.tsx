@@ -21,7 +21,13 @@ export function PropertyCoverImage({
   }
   return (
     <div className={`relative overflow-hidden bg-[var(--surface)] ${className}`}>
-      <Image src={src} alt={alt} fill className="object-cover" sizes="(max-width:768px) 100vw, 50vw" />
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover transition-transform duration-[850ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+        sizes="(max-width:768px) 100vw, 50vw"
+      />
     </div>
   );
 }

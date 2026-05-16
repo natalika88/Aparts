@@ -1,17 +1,18 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { BookingCalendar } from "@/components/booking/BookingCalendar";
 import { submitBookingRequest, type BookingFormState } from "./actions";
 
 const initial: BookingFormState = { ok: true };
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton({ label, disabled }: { label: string; disabled?: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
-      disabled={pending}
+      disabled={pending || disabled}
       className="rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-medium text-[var(--background)] disabled:opacity-50"
     >
       {label}
@@ -23,11 +24,13 @@ export function BookingForm({
   slug,
   locale,
   minStay,
+  blockedDays,
   labels,
 }: {
   slug: string;
   locale: "ru" | "en";
   minStay: number;
+  blockedDays: string[];
   labels: {
     submit: string;
     checkIn: string;
@@ -37,31 +40,61 @@ export function BookingForm({
     phone: string;
     email: string;
     comment: string;
+    calendar: {
+      nights: string;
+      selectCheckIn: string;
+      selectCheckOut: string;
+      unavailable: string;
+      legendAvailable: string;
+      legendBusy: string;
+      legendSelected: string;
+      prevMonth: string;
+      nextMonth: string;
+      minStayHint: string;
+    };
     error: Record<string, string>;
   };
 }) {
   const [state, formAction] = useActionState(submitBookingRequest, initial);
+  const [datesReady, setDatesReady] = useState(false);
 
   return (
-    <form action={formAction} className="mt-6 space-y-4 rounded-2xl border border-[var(--border)] bg-white/60 p-6">
+    <form action={formAction} className="mt-4 w-full space-y-4 rounded-2xl border border-[var(--border)] bg-white/60 p-6">
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="slug" value={slug} />
-      <p className="text-xs text-[var(--muted)]">
-        min stay: {minStay} {locale === "ru" ? "ноч." : "nights"}
-      </p>
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className="block text-sm">
-          <span className="text-[var(--muted)]">{labels.checkIn}</span>
-          <input required type="date" name="checkIn" className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
-        </label>
-        <label className="block text-sm">
-          <span className="text-[var(--muted)]">{labels.checkOut}</span>
-          <input required type="date" name="checkOut" className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
-        </label>
-      </div>
+
+      <BookingCalendar
+        locale={locale}
+        minStay={minStay}
+        blockedDays={blockedDays}
+        labels={{
+          checkIn: labels.checkIn,
+          checkOut: labels.checkOut,
+          nights: labels.calendar.nights,
+          selectCheckIn: labels.calendar.selectCheckIn,
+          selectCheckOut: labels.calendar.selectCheckOut,
+          unavailable: labels.calendar.unavailable,
+          legendAvailable: labels.calendar.legendAvailable,
+          legendBusy: labels.calendar.legendBusy,
+          legendSelected: labels.calendar.legendSelected,
+          prevMonth: labels.calendar.prevMonth,
+          nextMonth: labels.calendar.nextMonth,
+          minStayHint: labels.calendar.minStayHint,
+        }}
+        onRangeChange={(checkIn, checkOut) => setDatesReady(Boolean(checkIn && checkOut))}
+      />
+
       <label className="block text-sm">
         <span className="text-[var(--muted)]">{labels.guests}</span>
-        <input required type="number" min={1} max={20} name="guestsCount" defaultValue={2} className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
+        <input
+          required
+          type="number"
+          min={1}
+          max={20}
+          name="guestsCount"
+          defaultValue={2}
+          className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
+        />
       </label>
       <label className="block text-sm">
         <span className="text-[var(--muted)]">{labels.name}</span>
@@ -82,7 +115,7 @@ export function BookingForm({
       {state.ok === false && state.error ? (
         <p className="text-sm text-red-700">{labels.error[state.error] ?? state.error}</p>
       ) : null}
-      <SubmitButton label={labels.submit} />
+      <SubmitButton label={labels.submit} disabled={!datesReady} />
     </form>
   );
 }

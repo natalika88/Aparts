@@ -9,6 +9,7 @@
     "brandWordBottom": "SON",
     "logoAlt": "Pushkin Son — silhouette",
     "home": "Home",
+    "book": "Book now",
     "apartments": "Apartments",
     "addresses": "Locations",
     "contacts": "Contact",
@@ -20,9 +21,13 @@
   "Home": {
     "heroTitle": "Pushkin Son",
     "heroSubtitle": "Apartments in the heart of St. Petersburg",
+    "objectsMapAlt": "Map of four Pushkin Son locations in central Saint Petersburg",
     "heroLead": "Four locations, nineteen spaces for travel or business.",
     "groupsTitle": "Locations",
     "featuredTitle": "Featured",
+    "bookingSectionTitle": "Booking request",
+    "bookingSectionLead": "Choose an apartment and pick your dates in the calendar — we will confirm availability.",
+    "bookApartment": "Send request",
     "ctaTitle": "Pick dates & apartment",
     "ctaBody": "Booking is a request: we confirm availability and details by phone or email.",
     "bookingNote": "Online payments come later — the database is already prepared."
@@ -41,11 +46,24 @@
     "book": "Request booking",
     "code": "Property code",
     "avito": "Avito listing",
-    "calSyncNote": "Avito calendar sync is not enabled yet. The property model already reserves fields for an iCal URL and last import time—we will wire this up when you are ready."
+    "calSyncNote": "Avito calendar sync is not enabled yet. The property model already reserves fields for an iCal URL and last import time—we will wire this up when you are ready.",
+    "calendar": {
+      "nights": "nights",
+      "selectCheckIn": "Select check-in date on the calendar",
+      "selectCheckOut": "Select check-out date",
+      "legendAvailable": "Available",
+      "legendBusy": "Unavailable",
+      "legendSelected": "Your stay",
+      "prevMonth": "Previous month",
+      "nextMonth": "Next month",
+      "minStayHint": "Minimum {n} nights in a row"
+    }
   },
   "Addresses": {
     "title": "Locations",
-    "subtitle": "All homes are grouped by address"
+    "subtitle": "All homes are grouped by address",
+    "mapTitle": "On the map",
+    "openInYandex": "Open in Yandex Maps"
   },
   "Contacts": {
     "title": "Contact",
