@@ -64,6 +64,13 @@ export default async function ApartmentPage({ params }: Props) {
     phone: loc === "ru" ? "Телефон" : "Phone",
     email: "Email",
     comment: loc === "ru" ? "Комментарий" : "Comment",
+    personalData: {
+      title: t("personalData.title"),
+      protected: t("personalData.protected"),
+      noAi: t("personalData.noAi"),
+      mergeOnly: t("personalData.mergeOnly"),
+      consent: t("personalData.consent"),
+    },
     calendar: {
       nights: t("calendar.nights"),
       selectCheckIn: t("calendar.selectCheckIn"),
@@ -88,6 +95,7 @@ export default async function ApartmentPage({ params }: Props) {
   const detailLabels = {
     factsTitle: t("factsTitle"),
     aboutTitle: t("aboutTitle"),
+    highlightsTitle: t("highlightsTitle"),
     amenitiesTitle: t("amenitiesTitle"),
     rulesTitle: t("rulesTitle"),
     area: t("area"),

@@ -8,6 +8,7 @@ import {
   syncApartPhotoFolders,
 } from "./photo-sync";
 import { syncBrandLogo } from "./brand-logo-sync";
+import { loadBrifDescriptions } from "../scripts/brif-description-parser";
 
 const prisma = new PrismaClient();
 
@@ -531,6 +532,20 @@ async function main() {
         },
       });
     }
+  }
+
+  for (const d of loadBrifDescriptions()) {
+    await prisma.property.updateMany({
+      where: { internalCode: d.internalCode },
+      data: {
+        shortDescription: d.shortDescription,
+        shortDescriptionEn: d.shortDescriptionEn,
+        fullDescription: d.fullDescription,
+        fullDescriptionEn: d.fullDescriptionEn,
+        advantages: d.advantages,
+        rules: d.rules,
+      },
+    });
   }
 
   console.log("Seed OK. Вход в админку:");

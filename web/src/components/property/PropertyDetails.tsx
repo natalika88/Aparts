@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 import { Link } from "@/i18n/routing";
-import { propertyTypeLabel, splitListText } from "@/lib/property-display";
+import {
+  propertyTypeLabel,
+  splitDescriptionParagraphs,
+  splitListText,
+} from "@/lib/property-display";
 import {
   IconArea,
   IconBed,
@@ -38,6 +42,7 @@ export type PropertyDetailsData = {
 type Labels = {
   factsTitle: string;
   aboutTitle: string;
+  highlightsTitle: string;
   amenitiesTitle: string;
   rulesTitle: string;
   area: string;
@@ -120,6 +125,7 @@ export function PropertyDetails({
 
   const ruleItems = splitListText(data.rules);
   const advantageItems = splitListText(data.advantages);
+  const aboutParagraphs = splitDescriptionParagraphs(about);
 
   const guestsValue = locale === "ru" ? `до ${data.guestsMax} гостей` : `up to ${data.guestsMax} guests`;
   const layoutValue = `${layoutLabel}${roomNote}`;
@@ -145,19 +151,40 @@ export function PropertyDetails({
       <h2 id="property-about-heading" className="property-section-title">
         {labels.aboutTitle}
       </h2>
-      {title && title !== about ? (
-        <p className="mt-4 text-lg leading-relaxed text-[var(--text)]">{title}</p>
+      {title && title !== about && !aboutParagraphs.some((p) => p.startsWith(title.slice(0, 40))) ? (
+        <p className="mt-4 text-lg font-medium leading-relaxed text-[var(--text)]">{title}</p>
       ) : null}
-      <p className="mt-3 leading-relaxed text-[var(--muted)]">{about}</p>
+      <div className="mt-4 space-y-4">
+        {aboutParagraphs.length > 0 ? (
+          aboutParagraphs.map((paragraph) => (
+            <p key={paragraph.slice(0, 48)} className="leading-relaxed text-[var(--muted)]">
+              {paragraph}
+            </p>
+          ))
+        ) : (
+          <p className="leading-relaxed text-[var(--muted)]">{about}</p>
+        )}
+      </div>
       {advantageItems.length > 0 ? (
-        <ul className="mt-5 space-y-2">
-          {advantageItems.map((item) => (
-            <li key={item} className="flex gap-2 text-sm leading-relaxed text-[var(--text)]">
-              <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-[var(--accent-secondary)]" aria-hidden />
-              {item}
-            </li>
-          ))}
-        </ul>
+        <div className="mt-8">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--text)]">
+            {labels.highlightsTitle}
+          </h3>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {advantageItems.map((item) => (
+              <li
+                key={item}
+                className="flex gap-3 rounded-xl border border-[var(--border)] bg-white/60 px-4 py-3 text-sm leading-relaxed text-[var(--text)]"
+              >
+                <span
+                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent)]"
+                  aria-hidden
+                />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
     </section>
   );

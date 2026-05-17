@@ -15,7 +15,8 @@
     "db:studio": "prisma studio",
     "photos:sync": "tsx prisma/photo-sync-cli.ts",
     "brand:sync": "tsx prisma/brand-logo-cli.ts",
-    "coords:update": "tsx prisma/update-group-coords.ts"
+    "coords:update": "tsx prisma/update-group-coords.ts",
+    "descriptions:sync": "tsx scripts/sync-descriptions-from-brif.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { BookingCalendar } from "@/components/booking/BookingCalendar";
+import { PersonalDataNotice } from "@/components/personal-data/PersonalDataNotice";
 import { submitBookingRequest, type BookingFormState } from "./actions";
 
 const initial: BookingFormState = { ok: true };
@@ -42,6 +43,13 @@ export function BookingForm({
     phone: string;
     email: string;
     comment: string;
+    personalData: {
+      title: string;
+      protected: string;
+      noAi: string;
+      mergeOnly: string;
+      consent: string;
+    };
     calendar: {
       nights: string;
       selectCheckIn: string;
@@ -102,17 +110,29 @@ export function BookingForm({
           className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2"
         />
       </label>
+      <PersonalDataNotice labels={labels.personalData} compact />
+
       <label className="block text-sm">
         <span className="text-[var(--muted)]">{labels.name}</span>
-        <input required name="guestName" className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
+        <input required name="guestName" autoComplete="name" className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
       </label>
       <label className="block text-sm">
         <span className="text-[var(--muted)]">{labels.phone}</span>
-        <input required name="guestPhone" className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
+        <input required name="guestPhone" type="tel" autoComplete="tel" className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
       </label>
       <label className="block text-sm">
         <span className="text-[var(--muted)]">{labels.email}</span>
-        <input required type="email" name="guestEmail" className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
+        <input required type="email" name="guestEmail" autoComplete="email" className="mt-1 w-full rounded-lg border border-[var(--border)] bg-white px-3 py-2" />
+      </label>
+      <label className="flex gap-2 text-sm leading-relaxed text-[var(--muted)]">
+        <input
+          required
+          type="checkbox"
+          name="personalDataConsent"
+          value="on"
+          className="mt-1 h-4 w-4 shrink-0 rounded border-[var(--border)] accent-[var(--accent)]"
+        />
+        <span>{labels.personalData.consent}</span>
       </label>
       <label className="block text-sm">
         <span className="text-[var(--muted)]">{labels.comment}</span>

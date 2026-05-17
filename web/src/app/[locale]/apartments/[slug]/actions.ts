@@ -2,6 +2,7 @@
 
 import { differenceInCalendarDays } from "date-fns";
 import { z } from "zod";
+import { encryptBookingPersonalFields } from "@/lib/personal-data/booking-storage";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
@@ -14,6 +15,7 @@ const schema = z.object({
   guestName: z.string().min(2).max(120),
   guestPhone: z.string().min(5).max(40),
   guestEmail: z.string().email().max(120),
+  personalDataConsent: z.literal("on"),
   comment: z.string().max(2000).optional(),
 });
 
@@ -32,6 +34,7 @@ export async function submitBookingRequest(
     guestName: formData.get("guestName"),
     guestPhone: formData.get("guestPhone"),
     guestEmail: formData.get("guestEmail"),
+    personalDataConsent: formData.get("personalDataConsent"),
     comment: formData.get("comment") || undefined,
   });
 
@@ -66,6 +69,12 @@ export async function submitBookingRequest(
   const pricePerNight = property.basePricePerNight ?? 0;
   const total = pricePerNight * nights;
 
+  const encryptedGuest = encryptBookingPersonalFields({
+    guestName: v.guestName,
+    guestPhone: v.guestPhone,
+    guestEmail: v.guestEmail,
+  });
+
   await prisma.booking.create({
     data: {
       propertyId: property.id,
@@ -73,9 +82,10 @@ export async function submitBookingRequest(
       dateCheckOut: checkOut,
       nightsCount: nights,
       guestsCount: v.guestsCount,
-      guestName: v.guestName,
-      guestPhone: v.guestPhone,
-      guestEmail: v.guestEmail,
+      guestName: encryptedGuest.guestName,
+      guestPhone: encryptedGuest.guestPhone,
+      guestEmail: encryptedGuest.guestEmail,
+      personalDataConsentAt: new Date(),
       comment: v.comment ?? null,
       totalPrice: total,
       status: "PENDING",

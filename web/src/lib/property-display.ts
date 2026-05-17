@@ -11,11 +11,26 @@ export function propertyTypeLabel(type: string, locale: "ru" | "en"): string {
   return row ? row[locale] : type;
 }
 
+/** Абзацы полного описания (разделитель — пустая строка). */
+export function splitDescriptionParagraphs(text: string | null | undefined): string[] {
+  if (!text?.trim()) return [];
+  return text
+    .split(/\n\n+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
 /** Разбивает правила и списки преимуществ на пункты для отображения. */
 export function splitListText(text: string | null | undefined): string[] {
   if (!text?.trim()) return [];
+  if (text.includes("\n")) {
+    return text
+      .split(/\n+/)
+      .map((s) => s.trim())
+      .filter((s) => s.length > 2);
+  }
   return text
-    .split(/\n+|(?<=[.!?])\s+/)
+    .split(/(?<=[.!?])\s+/)
     .map((s) => s.trim())
     .filter((s) => s.length > 2);
 }
