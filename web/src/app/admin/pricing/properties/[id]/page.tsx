@@ -1,19 +1,34 @@
 import Link from "next/link";
-import { format } from "date-fns";
+import { parseISO, startOfMonth } from "date-fns";
 import { notFound } from "next/navigation";
+import { AdminMonthCalendar } from "@/components/admin/AdminMonthCalendar";
+import { AvailabilityRecordRow } from "@/components/admin/AvailabilityRecordRow";
+import { getPropertyMonthCalendar } from "@/lib/admin/property-calendar";
 import { prisma } from "@/lib/prisma";
 import { PropertyPricingForm } from "./PropertyPricingForm";
 
-export default async function PricingPropertyPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function PricingPropertyPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ month?: string }>;
+}) {
   const { id } = await params;
+  const { month: monthParam } = await searchParams;
   const property = await prisma.property.findUnique({
     where: { id },
     include: {
       group: true,
-      availability: { orderBy: { dateStart: "desc" }, take: 12 },
+      availability: { orderBy: { dateStart: "desc" }, take: 24 },
     },
   });
   if (!property) notFound();
+
+  const viewMonth = monthParam?.match(/^\d{4}-\d{2}$/)
+    ? startOfMonth(parseISO(`${monthParam}-01`))
+    : startOfMonth(new Date());
+  const calendar = await getPropertyMonthCalendar(property.id, viewMonth);
 
   return (
     <div className="space-y-6">
@@ -33,16 +48,25 @@ export default async function PricingPropertyPage({ params }: { params: Promise<
         minStay={property.minStayDefault}
       />
 
+      <AdminMonthCalendar
+        propertyId={property.id}
+        initialMonth={calendar.monthKey}
+        dayStatuses={calendar.days}
+      />
+
       <section className="rounded-xl border border-slate-200 bg-white p-5">
         <h2 className="font-medium text-slate-900">Записи календаря</h2>
         <ul className="mt-3 divide-y divide-slate-100 text-sm">
           {property.availability.map((a) => (
-            <li key={a.id} className="flex justify-between py-2">
-              <span>
-                {format(a.dateStart, "dd.MM.yyyy")} — {format(a.dateEnd, "dd.MM.yyyy")}
-              </span>
-              <span className="rounded-full bg-slate-100 px-2 text-xs">{a.status}</span>
-            </li>
+            <AvailabilityRecordRow
+              key={a.id}
+              id={a.id}
+              propertyId={property.id}
+              dateStart={a.dateStart}
+              dateEnd={a.dateEnd}
+              status={a.status}
+              canDelete={a.source === "MANUAL" && a.status !== "BOOKED"}
+            />
           ))}
           {property.availability.length === 0 ? (
             <li className="py-4 text-slate-500">Нет ручных блокировок</li>

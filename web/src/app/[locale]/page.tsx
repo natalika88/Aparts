@@ -1,16 +1,33 @@
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { prisma } from "@/lib/prisma";
 import { Reveal } from "@/components/motion/Reveal";
+import { HeroBookingSearch } from "@/components/home/HeroBookingSearch";
+import { HomeSearchResults } from "@/components/home/HomeSearchResults";
 
 export async function generateMetadata() {
   const t = await getTranslations("meta");
   return { title: t("title"), description: t("description") };
 }
 
-export default async function HomePage() {
+type SearchParams = {
+  checkIn?: string;
+  checkOut?: string;
+  guests?: string;
+  group?: string;
+};
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   const t = await getTranslations("Home");
+  const locale = await getLocale();
+  const params = await searchParams;
+
   const groups = await prisma.propertyGroup.findMany({
     orderBy: { sortOrder: "asc" },
     include: {
@@ -18,40 +35,59 @@ export default async function HomePage() {
     },
   });
 
+  const searchGroups = groups.map((g) => ({ slug: g.slug, name: g.name }));
+
+  const checkIn = params.checkIn?.trim();
+  const checkOut = params.checkOut?.trim();
+  const guests = Math.max(1, Math.min(12, Number(params.guests) || 0));
+  const hasSearch = Boolean(checkIn && checkOut && guests > 0);
+
   return (
     <div className="space-y-16">
       <section className="home-hero">
-        <div className="home-hero__bg" aria-hidden />
-        <div className="home-hero__wash" aria-hidden />
+        <div className="home-hero__media" aria-hidden>
+          <div className="home-hero__bg" />
+          <div className="home-hero__wash" />
+        </div>
         <div className="home-hero__content">
-          <div className="max-w-3xl space-y-5">
-            <h1 className="home-hero__title hero-in hero-in-1 font-[family-name:var(--font-display)] text-4xl leading-[1.08] tracking-tight text-[var(--text)] md:text-5xl lg:text-[3.25rem]">
-              {t("heroTitle")}
-            </h1>
-            <p className="hero-in hero-in-2 max-w-2xl text-lg leading-relaxed text-[var(--muted)] md:text-xl">
-              {t.rich("heroLead", {
-                bold: (chunks) => (
-                  <strong className="font-semibold text-[var(--text)]">{chunks}</strong>
-                ),
-              })}
-            </p>
-            <div className="hero-in hero-in-3 flex flex-wrap gap-3 pt-1">
-              <Link
-                href="/apartments"
-                className="btn-premium rounded-full bg-[var(--accent)] px-6 py-3 text-sm font-medium tracking-wide text-[var(--background)] font-[family-name:var(--font-display)]"
-              >
-                {t("ctaTitle")}
-              </Link>
-              <Link
-                href="/#locations"
-                className="btn-premium btn-premium-outline rounded-full border border-[var(--border)] px-6 py-3 text-sm font-[family-name:var(--font-display)] tracking-wide text-[var(--text)] hover:bg-[var(--surface)]"
-              >
-                {t("groupsTitle")}
-              </Link>
+          <div className="grid gap-6 md:grid-cols-[1fr_minmax(16rem,22rem)] md:items-end md:gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="home-hero__intro hero-in hero-in-1 order-1 space-y-2 md:order-2 md:justify-self-end lg:max-w-md">
+              <h1 className="home-hero__title font-[family-name:var(--font-display)] text-3xl leading-[1.08] tracking-tight text-[var(--text)] md:text-4xl lg:text-[2.75rem]">
+                {t("heroTitle")}
+              </h1>
+              <p className="text-base leading-relaxed text-[var(--muted)] md:text-lg">
+                {t.rich("heroLead", {
+                  bold: (chunks) => (
+                    <strong className="font-semibold text-[var(--text)]">{chunks}</strong>
+                  ),
+                })}
+              </p>
             </div>
+          </div>
+          <div id="booking-search" className="home-hero__search-slot scroll-mt-28">
+            <Suspense
+              fallback={
+                <div
+                  className="hero-in hero-in-3 h-[4.5rem] max-w-4xl animate-pulse rounded-2xl bg-white/50"
+                  aria-hidden
+                />
+              }
+            >
+              <HeroBookingSearch groups={searchGroups} />
+            </Suspense>
           </div>
         </div>
       </section>
+
+      {hasSearch ? (
+        <HomeSearchResults
+          locale={locale}
+          checkIn={checkIn!}
+          checkOut={checkOut!}
+          guests={guests}
+          groupSlug={params.group}
+        />
+      ) : null}
 
       <Reveal as="section" id="locations" className="scroll-mt-28 space-y-6">
         <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--text)]">{t("groupsTitle")}</h2>

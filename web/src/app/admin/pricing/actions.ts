@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { format } from "date-fns";
+import { addDays, format, isBefore, parseISO, startOfDay } from "date-fns";
 import { ru } from "date-fns/locale";
 import { z } from "zod";
 import { writeAuditLog } from "@/lib/auth/audit";
@@ -191,6 +191,95 @@ export async function blockPropertyDates(
     entityId: row.id,
     action: "CREATE",
     after: { propertyId, dateStart, dateEnd, status },
+  });
+
+  revalidatePath(`/admin/pricing/properties/${propertyId}`);
+}
+
+const calendarStatusSchema = z.enum(["BLOCKED", "UNAVAILABLE", "AVAILABLE"]);
+
+/** Первая ночь (включительно) и день выезда (исключительно), как в бронировании. */
+export async function applyCalendarRange(
+  propertyId: string,
+  dateStart: string,
+  dateEnd: string,
+  status: z.infer<typeof calendarStatusSchema>,
+) {
+  const session = await requirePricingAccess();
+  const parsedStatus = calendarStatusSchema.parse(status);
+  const start = startOfDay(parseISO(dateStart));
+  const end = startOfDay(parseISO(dateEnd));
+  if (!isBefore(start, end)) throw new Error("Некорректный диапазон дат");
+
+  const booked = await prisma.propertyAvailability.findFirst({
+    where: {
+      propertyId,
+      status: "BOOKED",
+      dateStart: { lt: end },
+      dateEnd: { gt: start },
+    },
+  });
+  const confirmedBooking = await prisma.booking.findFirst({
+    where: {
+      propertyId,
+      status: "CONFIRMED",
+      dateCheckIn: { lt: end },
+      dateCheckOut: { gt: start },
+    },
+  });
+  if (booked || confirmedBooking) {
+    throw new Error("В выбранном диапазоне есть подтверждённая бронь — измените другие даты");
+  }
+
+  await prisma.propertyAvailability.deleteMany({
+    where: {
+      propertyId,
+      source: "MANUAL",
+      status: { in: ["BLOCKED", "UNAVAILABLE"] },
+      dateStart: { lt: end },
+      dateEnd: { gt: start },
+    },
+  });
+
+  if (parsedStatus !== "AVAILABLE") {
+    await prisma.propertyAvailability.create({
+      data: {
+        propertyId,
+        dateStart: start,
+        dateEnd: end,
+        status: parsedStatus,
+        source: "MANUAL",
+        comment: "Календарь админки",
+      },
+    });
+  }
+
+  await writeAuditLog({
+    userId: session.user.id,
+    entityType: "Property",
+    entityId: propertyId,
+    action: "CALENDAR_UPDATE",
+    after: { dateStart, dateEnd, status: parsedStatus },
+  });
+
+  revalidatePath(`/admin/pricing/properties/${propertyId}`);
+}
+
+export async function deleteAvailabilityRecord(recordId: string, propertyId: string) {
+  const session = await requirePricingAccess();
+  const row = await prisma.propertyAvailability.findUnique({ where: { id: recordId } });
+  if (!row || row.propertyId !== propertyId) throw new Error("Not found");
+  if (row.source !== "MANUAL" || row.status === "BOOKED") {
+    throw new Error("Можно удалить только ручную блокировку");
+  }
+
+  await prisma.propertyAvailability.delete({ where: { id: recordId } });
+
+  await writeAuditLog({
+    userId: session.user.id,
+    entityType: "PropertyAvailability",
+    entityId: recordId,
+    action: "DELETE",
   });
 
   revalidatePath(`/admin/pricing/properties/${propertyId}`);

@@ -35,7 +35,6 @@ export type PropertyDetailsData = {
   fullDescription: string;
   fullDescriptionEn: string | null;
   advantages: string | null;
-  rules: string | null;
   amenities: { name: string; nameEn: string | null }[];
 };
 
@@ -44,7 +43,6 @@ type Labels = {
   aboutTitle: string;
   highlightsTitle: string;
   amenitiesTitle: string;
-  rulesTitle: string;
   area: string;
   layout: string;
   guests: string;
@@ -123,28 +121,12 @@ export function PropertyDetails({
         : ` · ${data.roomsCount} rm`
       : "";
 
-  const ruleItems = splitListText(data.rules);
   const advantageItems = splitListText(data.advantages);
   const aboutParagraphs = splitDescriptionParagraphs(about);
 
   const guestsValue = locale === "ru" ? `до ${data.guestsMax} гостей` : `up to ${data.guestsMax} guests`;
   const layoutValue = `${layoutLabel}${roomNote}`;
   const areaValue = `${data.areaSqm} ${labels.sqm}`;
-
-  const addressSection = (
-    <section aria-labelledby="property-address-heading" className="rounded-2xl border border-[var(--border)] bg-white/50 p-5">
-      <h2 id="property-address-heading" className="property-section-title">
-        {labels.address}
-      </h2>
-      <p className="mt-2 text-[var(--text)]">{data.fullAddress}</p>
-      <Link
-        href={`/addresses/${data.groupSlug}`}
-        className="mt-2 inline-block text-sm font-medium text-[var(--accent)] underline-offset-4 hover:underline"
-      >
-        {labels.location}: {data.groupName} →
-      </Link>
-    </section>
-  );
 
   const aboutSection = (
     <section aria-labelledby="property-about-heading">
@@ -212,55 +194,15 @@ export function PropertyDetails({
       </section>
     ) : null;
 
-  const rulesSection =
-    ruleItems.length > 0 ? (
-      <section aria-labelledby="property-rules-heading">
-        <h2 id="property-rules-heading" className="property-section-title">
-          {labels.rulesTitle}
-        </h2>
-        <ul className="mt-4 space-y-2.5">
-          {ruleItems.map((item) => (
-            <li key={item} className="flex gap-2.5 text-sm leading-relaxed text-[var(--muted)]">
-              <span className="mt-1.5 shrink-0 text-[var(--accent)]" aria-hidden>
-                ·
-              </span>
-              {item}
-            </li>
-          ))}
-        </ul>
-      </section>
-    ) : null;
-
   if (presentation === "about") {
-    return (
-      <div className="space-y-8">
-        {addressSection}
-        {aboutSection}
-      </div>
-    );
-  }
-
-  if (presentation === "sidebar") {
-    if (!amenitiesSection && !rulesSection) return null;
-    return (
-      <div className="property-sidebar rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_30px_-14px_rgba(47,45,43,0.12)] lg:p-6">
-        <div className="space-y-8">
-          {amenitiesSection}
-          {rulesSection ? (
-            <div className={amenitiesSection ? "border-t border-[var(--border)] pt-8" : ""}>{rulesSection}</div>
-          ) : null}
-        </div>
-      </div>
-    );
+    return aboutSection;
   }
 
   if (presentation === "detailed") {
     return (
       <div className="space-y-10">
-        {addressSection}
         {aboutSection}
         {amenitiesSection}
-        {rulesSection}
       </div>
     );
   }
@@ -303,10 +245,8 @@ export function PropertyDetails({
             ) : null}
           </ul>
         </section>
-        {addressSection}
         {aboutSection}
         {amenitiesSection}
-        {rulesSection}
       </div>
     );
   }
@@ -395,30 +335,7 @@ export function PropertyDetails({
           </ul>
         ) : null}
       </section>
-
-      {ruleItems.length > 0 ? (
-        <section
-          aria-labelledby="property-rules-heading"
-          className="rounded-3xl border border-[var(--border)] bg-[var(--surface)]/40 p-6 md:p-8"
-        >
-          <h2 id="property-rules-heading" className="property-section-title">
-            {labels.rulesTitle}
-          </h2>
-          <ul className="mt-4 space-y-2">
-            {ruleItems.map((item) => (
-              <li key={item} className="flex gap-3 text-sm leading-relaxed text-[var(--muted)]">
-                <span
-                  className="mt-1.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--background)] text-[11px] font-medium text-[var(--accent)]"
-                  aria-hidden
-                >
-                  ·
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
     </div>
   );
 }
+

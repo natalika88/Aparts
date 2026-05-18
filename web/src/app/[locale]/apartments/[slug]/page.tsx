@@ -64,13 +64,8 @@ export default async function ApartmentPage({ params }: Props) {
     phone: loc === "ru" ? "Телефон" : "Phone",
     email: "Email",
     comment: loc === "ru" ? "Комментарий" : "Comment",
-    personalData: {
-      title: t("personalData.title"),
-      protected: t("personalData.protected"),
-      noAi: t("personalData.noAi"),
-      mergeOnly: t("personalData.mergeOnly"),
-      consent: t("personalData.consent"),
-    },
+    personalDataConsent: t("personalData.consent"),
+    privacyLink: t("personalData.privacyLink"),
     calendar: {
       nights: t("calendar.nights"),
       selectCheckIn: t("calendar.selectCheckIn"),
@@ -97,7 +92,6 @@ export default async function ApartmentPage({ params }: Props) {
     aboutTitle: t("aboutTitle"),
     highlightsTitle: t("highlightsTitle"),
     amenitiesTitle: t("amenitiesTitle"),
-    rulesTitle: t("rulesTitle"),
     area: t("area"),
     layout: t("layout"),
     guests: t("guests"),
@@ -132,7 +126,13 @@ export default async function ApartmentPage({ params }: Props) {
     code: t("code"),
     avito: t("avito"),
     perNight: apt("perNight"),
+    amenitiesTitle: t("amenitiesTitle"),
   };
+
+  const summaryAmenities = property.amenities.map((pa) => ({
+    name: pa.amenity.name,
+    nameEn: pa.amenity.nameEn,
+  }));
 
   const propertyDetailsData = {
     locale: loc,
@@ -153,7 +153,6 @@ export default async function ApartmentPage({ params }: Props) {
     fullDescription: property.fullDescription,
     fullDescriptionEn: property.fullDescriptionEn,
     advantages: property.advantages,
-    rules: property.rules,
     amenities: property.amenities.map((pa) => ({
       name: pa.amenity.name,
       nameEn: pa.amenity.nameEn,
@@ -182,7 +181,7 @@ export default async function ApartmentPage({ params }: Props) {
         </ol>
       </nav>
 
-      <section className="property-hero grid gap-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,22rem)] lg:items-stretch lg:gap-10 xl:grid-cols-[minmax(0,1.2fr)_24rem]">
+      <section className="property-hero grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,28rem)] lg:items-stretch lg:gap-10 xl:grid-cols-[minmax(0,1.15fr)_26rem]">
         <PropertyPhotoGallery
           items={galleryItems}
           title={propertyTitle}
@@ -209,24 +208,28 @@ export default async function ApartmentPage({ params }: Props) {
           }}
           labels={summaryLabels}
           pricePerNight={property.basePricePerNight}
+          amenities={summaryAmenities}
         />
       </section>
 
       <section
-        className="grid gap-10 border-t border-[var(--border)] pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:items-start lg:gap-12 xl:grid-cols-[minmax(0,1fr)_24rem]"
+        className="border-t border-[var(--border)] pt-10"
         aria-labelledby="property-details-heading"
       >
-        <div className="min-w-0 space-y-10">
-          <h2 id="property-details-heading" className="sr-only">
-            {detailLabels.aboutTitle}
-          </h2>
-          <PropertyDetails data={propertyDetailsData} labels={detailLabels} presentation="about" />
+        <div className="property-details grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(20rem,28rem)] lg:items-start lg:gap-10 xl:grid-cols-[minmax(0,1.15fr)_26rem]">
+          <div className="min-w-0 space-y-10">
+            <h2 id="property-details-heading" className="sr-only">
+              {detailLabels.aboutTitle}
+            </h2>
+            <PropertyDetails data={propertyDetailsData} labels={detailLabels} presentation="about" />
+          </div>
 
-          <section
-            id="booking"
-            className="property-booking-card scroll-mt-28 w-full max-w-[22rem] rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_30px_-14px_rgba(47,45,43,0.12)] sm:p-6"
-            aria-labelledby="property-booking-heading"
-          >
+          <aside className="lg:sticky lg:top-28 lg:self-start">
+            <section
+              id="booking"
+              className="property-booking-card scroll-mt-28 w-full rounded-2xl border border-[var(--border)] bg-white p-5 shadow-[0_8px_30px_-14px_rgba(47,45,43,0.12)] sm:p-6"
+              aria-labelledby="property-booking-heading"
+            >
             <h2
               id="property-booking-heading"
               className="font-[family-name:var(--font-display)] text-xl text-[var(--text)]"
@@ -250,12 +253,9 @@ export default async function ApartmentPage({ params }: Props) {
               embedded
             />
             <p className="mt-4 text-xs leading-relaxed text-[var(--muted)]">{t("calSyncNote")}</p>
-          </section>
+            </section>
+          </aside>
         </div>
-
-        <aside className="lg:sticky lg:top-28 lg:self-start">
-          <PropertyDetails data={propertyDetailsData} labels={detailLabels} presentation="sidebar" />
-        </aside>
       </section>
 
       {related.length > 0 ? (

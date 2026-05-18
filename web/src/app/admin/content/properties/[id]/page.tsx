@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PropertyMediaManager } from "@/components/admin/PropertyMediaManager";
 import { prisma } from "@/lib/prisma";
 import { updatePropertyContent } from "../../actions";
 
@@ -7,7 +8,10 @@ export default async function ContentPropertyEditPage({ params }: { params: Prom
   const { id } = await params;
   const property = await prisma.property.findUnique({
     where: { id },
-    include: { group: true },
+    include: {
+      group: true,
+      media: { where: { mediaType: "image" }, orderBy: { sortOrder: "asc" } },
+    },
   });
   if (!property) notFound();
 
@@ -44,8 +48,11 @@ export default async function ContentPropertyEditPage({ params }: { params: Prom
           <textarea name="advantages" defaultValue={property.advantages ?? ""} rows={5} className="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm" />
         </label>
         <label className="block text-sm">
-          <span className="text-[var(--muted)]">Правила</span>
-          <textarea name="rules" defaultValue={property.rules ?? ""} rows={4} className="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm" />
+          <span className="text-[var(--muted)]">Условия</span>
+          <span className="mt-0.5 block text-xs text-[var(--muted)]">
+            Блоки: заголовок, пустая строка, пункты (каждый с новой строки). Между блоками — пустая строка.
+          </span>
+          <textarea name="rules" defaultValue={property.rules ?? ""} rows={14} className="mt-1 w-full rounded-lg border px-3 py-2 font-mono text-sm" />
         </label>
         <label className="block text-sm">
           <span className="text-[var(--muted)]">Статус</span>
@@ -63,6 +70,18 @@ export default async function ContentPropertyEditPage({ params }: { params: Prom
           Сохранить
         </button>
       </form>
+
+      <PropertyMediaManager
+        propertyId={property.id}
+        propertyName={property.publicName}
+        items={property.media.map((m) => ({
+          id: m.id,
+          filePath: m.filePath,
+          altText: m.altText,
+          sortOrder: m.sortOrder,
+          isCover: m.isCover,
+        }))}
+      />
     </div>
   );
 }

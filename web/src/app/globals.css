@@ -98,7 +98,7 @@ body {
 .home-hero {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow: visible;
   width: 100vw;
   max-width: 100vw;
   margin-left: calc(50% - 50vw);
@@ -108,15 +108,23 @@ body {
   padding: clamp(3rem, 7vw, 5rem) 0 clamp(6rem, 20vh, 12rem);
 }
 
-.home-hero__bg {
+/* Фон и затемнение — отдельно, с обрезкой (контент и выпадашки снаружи) */
+.home-hero__media {
   position: absolute;
   inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-hero__bg {
+  position: absolute;
+  inset: -6%;
   background-image: url("/images/home-hero-bg.jpg");
   background-size: cover;
   background-position: center 38%;
   background-repeat: no-repeat;
   opacity: 0.68;
-  transform: scale(1.04);
   filter: saturate(0.95) sepia(0.1) contrast(1.04);
 }
 
@@ -131,24 +139,225 @@ body {
       color-mix(in srgb, var(--background) 78%, transparent) 72%,
       color-mix(in srgb, var(--background) 90%, transparent) 100%
     ),
-    linear-gradient(to top, var(--background) 0%, color-mix(in srgb, var(--background) 38%, transparent) 32%, transparent 58%),
+    linear-gradient(
+      to top,
+      var(--background) 0%,
+      color-mix(in srgb, var(--background) 92%, transparent) 18%,
+      color-mix(in srgb, var(--background) 55%, transparent) 42%,
+      color-mix(in srgb, var(--background) 22%, transparent) 62%
+    ),
     radial-gradient(ellipse 90% 70% at 50% 100%, color-mix(in srgb, var(--accent-secondary) 10%, transparent), transparent 70%);
+}
+
+/* Плавный переход в фон страницы — без светлой полоски снизу */
+.home-hero__media::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(4rem, 14vh, 9rem);
+  background: linear-gradient(to bottom, transparent, var(--background));
   pointer-events: none;
 }
 
 .home-hero__content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  display: flex;
+  min-height: clamp(26rem, 62vh, 44rem);
+  flex-direction: column;
+  justify-content: space-between;
   width: 100%;
   max-width: 72rem;
   margin-inline: auto;
   padding-inline: 1rem;
+  overflow: visible;
+}
+
+.home-hero__search-slot {
+  margin-top: auto;
+  width: 100%;
+  padding-top: clamp(2.5rem, 10vh, 6rem);
+}
+
+.hero-search {
+  position: relative;
+  z-index: 30;
+  overflow: visible;
 }
 
 .home-hero__title {
   text-shadow:
     0 1px 32px color-mix(in srgb, var(--background) 92%, transparent),
     0 0 1px color-mix(in srgb, var(--background) 70%, transparent);
+}
+
+/* ——— Главная: строка поиска бронирования ——— */
+.hero-search__bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: visible;
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--border) 90%, transparent);
+  background: color-mix(in srgb, var(--background) 92%, white);
+  box-shadow:
+    0 20px 48px -28px rgba(47, 45, 43, 0.22),
+    0 0 0 1px color-mix(in srgb, white 40%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+@media (min-width: 640px) {
+  .hero-search__bar {
+    flex-direction: row;
+    align-items: stretch;
+    border-radius: 1.25rem;
+  }
+}
+
+.hero-search__field {
+  position: relative;
+  min-width: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+}
+
+@media (min-width: 640px) {
+  .hero-search__field {
+    flex: 1;
+    border-bottom: none;
+    border-right: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  }
+
+  .hero-search__field--promo {
+    flex: 0.85;
+  }
+}
+
+.hero-search__trigger {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--duration-mid) var(--ease-premium);
+}
+
+.hero-search__trigger:hover,
+.hero-search__trigger--open {
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+}
+
+.hero-search__label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.hero-search__value {
+  font-size: 0.9rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.hero-search__input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 0.9rem;
+  color: var(--text);
+  outline: none;
+}
+
+.hero-search__input::placeholder {
+  color: var(--muted);
+}
+
+.hero-search__submit {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  font-family: var(--font-display), serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--background);
+  background: var(--accent);
+  transition:
+    background-color var(--duration-mid) var(--ease-premium),
+    transform var(--duration-mid) var(--ease-premium);
+}
+
+.hero-search__submit:hover {
+  background: color-mix(in srgb, var(--accent) 88%, var(--text));
+}
+
+.hero-search__panel {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 50;
+  min-width: min(100%, 14rem);
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: var(--background);
+  padding: 0.35rem;
+  box-shadow: 0 24px 48px -20px rgba(47, 45, 43, 0.2);
+}
+
+.hero-search__panel--wide {
+  min-width: min(calc(100vw - 2rem), 22rem);
+  padding: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .hero-search__panel--wide {
+    min-width: 20rem;
+  }
+}
+
+.hero-search__option {
+  display: block;
+  width: 100%;
+  border-radius: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+  font-size: 0.875rem;
+  color: var(--text);
+  transition: background-color var(--duration-mid) var(--ease-premium);
+}
+
+.hero-search__option:hover {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.hero-search__step {
+  display: flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--text);
+  transition: border-color var(--duration-mid) var(--ease-premium);
+}
+
+.hero-search__step:hover:not(:disabled) {
+  border-color: var(--accent-secondary);
+}
+
+.hero-search__step:disabled {
+  opacity: 0.35;
 }
 
 .locations-layout {

@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { COMPACT_PROPERTY_RULES_RU } from "../src/lib/property-rules";
 
 /** Номер объекта в брифе (1…19) → internalCode */
 /** ID объявления Авито → internalCode (из prisma/seed.ts) */
@@ -240,38 +241,6 @@ function buildFullParagraphs(description: string, location: string): string[] {
   return paras.filter((p, i, arr) => arr.indexOf(p) === i);
 }
 
-function extractRules(rulesBlock: string): string[] {
-  const lines: string[] = [];
-  const patterns = [
-    /Время заезда[^.!?]*[.!?]?/gi,
-    /Время выезда[^.!?]*[.!?]?/gi,
-    /Заезд[^.!?]*[.!?]?/gi,
-    /Выезд[^.!?]*[.!?]?/gi,
-    /Курение[^.!?]*[.!?]?/gi,
-    /Время тишины[^.!?]*[.!?]?/gi,
-    /Залог[^.!?]*[.!?]?/gi,
-    /питомц[^.!?]*[.!?]?/gi,
-    /уборк[^.!?]*[.!?]?/gi,
-    /Бесконтактн[^.!?]*[.!?]?/gi,
-    /Мы на связи[^.!?]*[.!?]?/gi,
-    /Ранний заезд[^.!?]*[.!?]?/gi,
-    /финальная уборка[^.!?]*[.!?]?/gi,
-    /договор аренды[^.!?]*[.!?]?/gi,
-  ];
-  const seen = new Set<string>();
-  for (const re of patterns) {
-    const m = rulesBlock.match(re);
-    if (m) {
-      const line = normalizeBrifText(m[0]).replace(/\s+/g, " ");
-      if (line.length > 8 && !seen.has(line)) {
-        seen.add(line);
-        lines.push(line.endsWith(".") ? line : `${line}.`);
-      }
-    }
-  }
-  return lines;
-}
-
 function parseObjectBlock(index: number, block: string): ParsedBrifProperty | null {
   const code = BRIF_OBJECT_CODES[index];
   if (!code) return null;
@@ -286,8 +255,6 @@ function parseObjectBlock(index: number, block: string): ParsedBrifProperty | nu
   let featuresRaw = sliceBetween(text, /Особенности/i, /Удобства:|Расположение:|Правила/i);
   const amenitiesRaw = sliceBetween(text, /Удобства:/i, /Расположение:|Правила/i);
   let locationRaw = sliceBetween(text, /Расположение:/i, /Правила|О доме|Отзывы/i);
-  const rulesRaw = sliceBetween(text, /Правила/i, /О доме|Отзывы гостей|Отзывы/i);
-
   let highlights: string[] = [];
 
   if (/ПРОВЕРИТЬ|⚡️|🏠/i.test(descriptionRaw)) {
@@ -325,8 +292,6 @@ function parseObjectBlock(index: number, block: string): ParsedBrifProperty | nu
   const hook = buildHook(descriptionRaw, highlights);
   const paragraphs = buildFullParagraphs(descriptionRaw, locationRaw);
   const fullRu = paragraphs.join("\n\n");
-  const rules = toBullets(extractRules(rulesRaw));
-
   return {
     objectIndex: index,
     internalCode: code,
@@ -345,7 +310,7 @@ function parseObjectBlock(index: number, block: string): ParsedBrifProperty | nu
             .join("\n\n")
         : hook.en,
     advantages: toBullets(highlights),
-    rules: rules || "Заезд с 14:00, выезд до 11:00. Курение запрещено. Время тишины 22:00–09:00.",
+    rules: COMPACT_PROPERTY_RULES_RU,
   };
 }
 

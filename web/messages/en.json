@@ -13,7 +13,7 @@
     "apartments": "Apartments",
     "addresses": "Locations",
     "contacts": "Contact",
-    "rules": "House rules",
+    "rules": "Conditions",
     "privacy": "Privacy",
     "terms": "Terms",
     "admin": "Sign in"
@@ -37,7 +37,24 @@
     "bookApartment": "Send request",
     "ctaTitle": "Pick dates & apartment",
     "ctaBody": "Booking is a request: we confirm availability and details by phone or email.",
-    "bookingNote": "Online payments come later — the database is already prepared."
+    "bookingNote": "Online payments come later — the database is already prepared.",
+    "searchWhere": "Where",
+    "searchAllLocations": "All locations",
+    "searchWhen": "When",
+    "searchDatesPlaceholder": "Check-in — Check-out",
+    "searchWho": "Who",
+    "searchGuestsRu": "{count, plural, one {# adult} other {# adults}}",
+    "searchGuestsEn": "{count, plural, one {# adult} other {# adults}}",
+    "searchPromo": "Promo code",
+    "searchPromoPlaceholder": "Enter code",
+    "searchFind": "Search",
+    "searchSelectDates": "Please select check-in and check-out dates",
+    "searchResultsTitle": "Available apartments",
+    "searchResultsCount": "{count, plural, one {# option found} other {# options found}}",
+    "searchResultsEmpty": "No apartments available for these dates",
+    "searchResultsEmptyHint": "Try different dates, fewer guests, or another location.",
+    "searchForNights": "for {nights, plural, one {# night} other {# nights}}",
+    "searchBook": "Book"
   },
   "Apartments": {
     "title": "Catalogue",
@@ -57,7 +74,7 @@
     "aboutTitle": "About this stay",
     "highlightsTitle": "Why guests choose this apartment",
     "amenitiesTitle": "Amenities",
-    "rulesTitle": "House rules",
+    "rulesTitle": "Conditions",
     "area": "Area",
     "layout": "Layout",
     "guests": "Guests",
@@ -79,7 +96,8 @@
       "protected": "Name, phone, and email are stored encrypted (AES-256-GCM) in line with Russian personal data law.",
       "noAi": "Personal data is never sent to AI systems.",
       "mergeOnly": "For briefs or commercial proposals, contact details are inserted on our server only — after the text is generated.",
-      "consent": "I consent to processing my personal data to handle this request and contact me. See the privacy policy for details."
+      "consent": "I consent to the processing of my personal data to handle this booking request and contact me.",
+      "privacyLink": "Privacy policy"
     },
     "minStay": "Min. stay",
     "nightsShort": "nights",
@@ -115,8 +133,8 @@
     "privacyAiBody": "We do not send your name, phone, or email to external language models. Document generation runs without personal data in the AI request; contact details are merged locally afterwards.",
     "termsTitle": "Terms of use",
     "termsBody": "By using the site you agree to data processing and booking rules. Replace this draft with a lawyer-reviewed offer before accepting online payments.",
-    "rulesTitle": "House rules",
-    "rulesBody": "Check-in from 14:00, check-out by 11:00 unless agreed otherwise. No smoking. Quiet hours — respect neighbours. Deposit and pet fees follow each listing."
+    "rulesTitle": "Conditions",
+    "rulesBody": "We want your stay to feel easy and comfortable for everyone. Check-in times, quiet hours, deposits, and pets are described for each apartment and on this page."
   },
   "Footer": {
     "rights": "© Pushkin Son, Saint Petersburg"

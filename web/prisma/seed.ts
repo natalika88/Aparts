@@ -9,6 +9,7 @@ import {
 } from "./photo-sync";
 import { syncBrandLogo } from "./brand-logo-sync";
 import { loadBrifDescriptions } from "../scripts/brif-description-parser";
+import { COMPACT_PROPERTY_RULES_RU } from "../src/lib/property-rules";
 
 const prisma = new PrismaClient();
 
@@ -489,8 +490,7 @@ async function main() {
         shortDescriptionEn: p.publicNameEn,
         fullDescription: `${p.publicName}. Уютные апартаменты «Пушкин сон» в центре Санкт-Петербурга.`,
         fullDescriptionEn: `${p.publicNameEn}. Pushkin Son — boutique apartments in central Saint Petersburg.`,
-        rules:
-          "Заезд с 14:00, выезд до 11:00. Курение запрещено. Время тишины 22:00–09:00.",
+        rules: COMPACT_PROPERTY_RULES_RU,
         basePricePerNight: p.basePrice,
         minStayDefault: 1,
         status: "PUBLISHED",
