@@ -50,8 +50,8 @@ export default async function HomePage({
           <div className="home-hero__wash" />
         </div>
         <div className="home-hero__content">
-          <div className="grid gap-6 md:grid-cols-[1fr_minmax(16rem,22rem)] md:items-end md:gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="home-hero__intro hero-in hero-in-1 order-1 space-y-2 md:order-2 md:justify-self-end lg:max-w-md">
+          <div className="home-hero__intro-row">
+            <div className="home-hero__intro hero-in hero-in-1 space-y-2">
               <h1 className="home-hero__title font-[family-name:var(--font-display)] text-3xl leading-[1.08] tracking-tight text-[var(--text)] md:text-4xl lg:text-[2.75rem]">
                 {t("heroTitle")}
               </h1>

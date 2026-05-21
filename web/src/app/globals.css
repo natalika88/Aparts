@@ -175,6 +175,37 @@ body {
   overflow: visible;
 }
 
+.home-hero__intro-row {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr;
+}
+
+.home-hero__intro {
+  width: 100%;
+  max-width: 20rem;
+}
+
+@media (min-width: 768px) {
+  .home-hero__intro-row {
+    grid-template-columns: minmax(0, 1.2fr) minmax(16rem, 26rem);
+    align-items: end;
+    gap: 1.5rem;
+  }
+
+  .home-hero__intro {
+    grid-column: 2;
+    max-width: none;
+    text-align: right;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-hero__intro-row {
+    grid-template-columns: minmax(0, 1.35fr) minmax(18rem, 28rem);
+  }
+}
+
 .home-hero__search-slot {
   margin-top: auto;
   width: 100%;
